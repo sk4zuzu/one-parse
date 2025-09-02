@@ -47,7 +47,7 @@ class RcParser < ParserBase
             Pair[ (one_of proc { blank.call + (take_exact %[export]) + blank.call },
                           blank),
                   attribute.call,
-                  blank.call + (take_exact %[\=]) + blank.call,
+                  (take_exact %[\=]),
                   (one_of single_quoted,
                           double_quoted,
                           unquoted),
@@ -85,7 +85,7 @@ class RcParser < ParserBase
         # add a new pair directly at the root level
         when s[atrb].nil? || (!atrb_i.nil? && atrb_i == 0)
             @parsed << Pair[
-                %[], atrb, %[ \= ], value.to_s, %[\n]
+                %[], atrb, %[\=], value.to_s, %[\n]
             ]
 
         # require paths to be unequivocal

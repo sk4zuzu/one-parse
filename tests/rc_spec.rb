@@ -6,38 +6,38 @@ require_relative '../ruby/rc'
 PARSE_AND_RENDER_TESTS = [
     <<~INPUT,
         export A=1
-        S= 2
-        D =3
+        S=2
+        D=3
     INPUT
     <<~INPUT,
         A='1'
-        export S= '2'
-        D ='3'
+        export S='2'
+        D='3'
     INPUT
     <<~INPUT,
         A="1"
-        S= "2"
-        export D ="3"
+        S="2"
+        export D="3"
     INPUT
     <<~INPUT,
         # A
             A=1
 
-        export S= '2' # S
-        D ="3"
+        export S='2' # S
+        D="3"
          #D
     INPUT
     <<~INPUT,
-        A = 1 #A
-            export S= '2 2' #S
-         D ="3 3" #D
+        A=1 #A
+            export S='2 2' #S
+         D="3 3" #D
     INPUT
     <<~INPUT,
-        A = "1\\"2\\"3"
-        S = '1"2"3'
+        A="1\\"2\\"3"
+        S='1"2"3'
     INPUT
-    '  A  =  S',
-    '  A  =  S  '
+    '  A=S',
+    '  A=S  '
 ]
 
 RSpec.describe RcParser do
@@ -51,9 +51,9 @@ end
 
 MATCH_AND_GET_TESTS = [{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        D = 3
+        A=1
+        S=2
+        D=3
     INPUT
     path: 'S',
     match: ['S'],
@@ -61,10 +61,10 @@ MATCH_AND_GET_TESTS = [{
     get: ['2']
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        S = 2
-        D = 3
+        A=1
+        S=2
+        S=2
+        D=3
     INPUT
     path: 'S',
     match: ['S[1]', 'S[2]'],
@@ -72,9 +72,9 @@ MATCH_AND_GET_TESTS = [{
     get: ['2', '2']
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        S = 3
+        A=1
+        S=2
+        S=3
     INPUT
     path: '*',
     match: ['A', 'S[1]', 'S[2]'],
@@ -82,9 +82,9 @@ MATCH_AND_GET_TESTS = [{
     get: ['1', '2', '3']
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        S = 3
+        A=1
+        S=2
+        S=3
     INPUT
     path: 'A[0]',
     match: [],
@@ -92,11 +92,11 @@ MATCH_AND_GET_TESTS = [{
     get: []
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        S = 3
-        D = 4
-        D = 5
+        A=1
+        S=2
+        S=3
+        D=4
+        D=5
     INPUT
     path: 'S[0]',
     match: ['S[1]', 'S[2]'],
@@ -104,11 +104,11 @@ MATCH_AND_GET_TESTS = [{
     get: ['2', '3']
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        S = 3
-        D = 4
-        D = 5
+        A=1
+        S=2
+        S=3
+        D=4
+        D=5
     INPUT
     path: '*[0]',
     match: ['S[1]', 'S[2]', 'D[1]', 'D[2]'],
@@ -116,11 +116,11 @@ MATCH_AND_GET_TESTS = [{
     get: ['2', '3', '4', '5']
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        S = 3
-        D = 4
-        D = 5
+        A=1
+        S=2
+        S=3
+        D=4
+        D=5
     INPUT
     path: '*[0]',
     match: ['S[2]'],
@@ -144,64 +144,64 @@ PUT_TESTS = [{
     path: 'A',
     value: '1',
     put: <<~OUTPUT,
-        A = 1
+        A=1
     OUTPUT
 },{
     input: <<~INPUT,
-        A = 1
+        A=1
     INPUT
     path: 'S',
     value: '2',
     put: <<~OUTPUT,
-        A = 1
-        S = 2
+        A=1
+        S=2
     OUTPUT
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
+        A=1
+        S=2
     INPUT
     path: 'S',
     value: '3',
     put: <<~OUTPUT,
-        A = 1
-        S = 3
+        A=1
+        S=3
     OUTPUT
 },{
     input: <<~INPUT,
-        A = 1
+        A=1
     INPUT
     path: 'A[0]',
     value: '2',
     put: <<~OUTPUT,
-        A = 1
-        A = 2
+        A=1
+        A=2
     OUTPUT
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
+        A=1
+        S=2
     INPUT
     path: 'S[0]',
     value: '3',
     put: <<~OUTPUT,
-        A = 1
-        S = 2
-        S = 3
+        A=1
+        S=2
+        S=3
     OUTPUT
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2 # ASD
+        A=1
+        S=2 # ASD
         # DSA
     INPUT
     path: 'S[0]',
     value: '3',
     put: <<~OUTPUT,
-        A = 1
-        S = 2 # ASD
+        A=1
+        S=2 # ASD
         # DSA
-        S = 3
+        S=3
     OUTPUT
 }]
 
@@ -217,56 +217,56 @@ end
 
 DROP_TESTS = [{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        D = 3
+        A=1
+        S=2
+        D=3
     INPUT
     path: 'S',
     value: nil,
     drop: <<~OUTPUT,
-        A = 1
-        D = 3
+        A=1
+        D=3
     OUTPUT
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        D = 3
-        export S = 4
+        A=1
+        S=2
+        D=3
+        export S=4
     INPUT
     path: 'S',
     value: nil,
     drop: <<~OUTPUT,
-        A = 1
-        D = 3
+        A=1
+        D=3
     OUTPUT
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        D = 3
-        export S = 4
+        A=1
+        S=2
+        D=3
+        export S=4
     INPUT
     path: 'S[1]',
     value: nil,
     drop: <<~OUTPUT,
-        A = 1
-        D = 3
-        export S = 4
+        A=1
+        D=3
+        export S=4
     OUTPUT
 },{
     input: <<~INPUT,
-        A = 1
-        S = 2
-        D = 3
-        export S = 4
+        A=1
+        S=2
+        D=3
+        export S=4
     INPUT
     path: 'S[2]',
     value: nil,
     drop: <<~OUTPUT,
-        A = 1
-        S = 2
-        D = 3
+        A=1
+        S=2
+        D=3
     OUTPUT
 }]
 
