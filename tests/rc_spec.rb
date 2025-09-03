@@ -36,8 +36,14 @@ PARSE_AND_RENDER_TESTS = [
         A="1\\"2\\"3"
         S='1"2"3'
     INPUT
-    '  A=S',
-    '  A=S  '
+    <<~INPUT,
+       A=S
+       A=S  
+    INPUT
+    <<~INPUT,
+       A=
+       S= #D
+    INPUT
 ]
 
 RSpec.describe RcParser do
