@@ -43,6 +43,16 @@ class RcParser < ParserBase
                                  + eol.call) ]
         }
 
+        empty_var = proc {
+            Pair[ (one_of proc { blank.call + (take_exact %[export]) + blank.call },
+                          blank),
+                  attribute.call,
+                  (take_exact %[\=]),
+                  (one_of comment,
+                          blank_eol,
+                          blank) ]
+        }
+
         pair = proc {
             Pair[ (one_of proc { blank.call + (take_exact %[export]) + blank.call },
                           blank),
@@ -57,6 +67,7 @@ class RcParser < ParserBase
         }
 
         Sequence[ *(zero_or_more proc { one_of pair,
+                                               empty_var,
                                                comment,
                                                blank_eol }) ]
     }
