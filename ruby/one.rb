@@ -120,6 +120,35 @@ class OneParser < ParserBase
         end
     end
 
+    def match(path, value = nil)
+        atrb, atrb_i, item, item_i = ypath path, wildcards: true
+        recurse = proc { |node, prefix, acc| # NOTE: never use default values here!
+            case
+            when node.is_a?(Pair) && (value.nil? || node[3] == value.to_s)
+                index = (i = node.getm(:@_index_)).nil? ? '' : "[#{i}]"
+                acc << (prefix + index)
+            when node.is_a?(Sequence)
+                node.each { |v| recurse.call v, prefix, acc }
+            when node.is_a?(Lookup)
+                unless prefix.empty?
+                    index = (i = node.getm(:@_index_)).nil? ? '' : "[#{i}]"
+                    prefix += (index + %[\/])
+                end
+                node.each { |k, v| recurse.call v, prefix + k, acc }
+            end
+        }
+        case
+        # NOTE: this is required for keeping compatibility with augeas!
+        when atrb == '*' && atrb_i.nil? && item.nil?
+            recurse.call (filtered patterns: ['*', nil], indices: []), '', (found1 = [])
+            recurse.call (filtered patterns: ['*', '*'], indices: []), '', (found2 = [])
+            found1 + (found2.map { |p| p.split(%[\/], 2)[0] }).uniq
+        else
+            recurse.call (filtered patterns: [atrb, item], indices: [atrb_i, item_i]), '', (found = [])
+            found
+        end
+    end
+
     # due to overwhelming complexity we decided not to use recurrence here.. xD
     def put(path, value)
         atrb, atrb_i, item, item_i = ypath path, wildcards: false
