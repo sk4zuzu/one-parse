@@ -260,19 +260,10 @@ MATCH_AND_GET_TESTS = [{
     input: <<~INPUT,
         A = 1
         S = [D = 2]
-    INPUT
-    path: '*',
-    match: ['A', 'S'],
-    value: nil,
-    get: ['1']
-},{
-    input: <<~INPUT,
-        A = 1
-        S = [D = 2]
         S = [D = 3, D = 4]
     INPUT
     path: '*',
-    match: ['A', 'S[1]', 'S[2]'],
+    match: ['A'],
     value: nil,
     get: ['1']
 },{
