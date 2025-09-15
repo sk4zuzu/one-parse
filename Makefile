@@ -12,7 +12,7 @@ all: test
 test: test_one test_rc
 
 test_one:
-	rspec $(SELF)/tests/one_spec.rb
+	rspec $(SELF)/ruby/one_spec.rb
 
 test_rc:
-	rspec $(SELF)/tests/rc_spec.rb
+	rspec $(SELF)/ruby/rc_spec.rb

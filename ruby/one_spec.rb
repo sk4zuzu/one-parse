@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require_relative '../ruby/one'
+require_relative 'one'
 
 LEGACY_AUGEAS_GET_TESTS = [
     <<~AUG,

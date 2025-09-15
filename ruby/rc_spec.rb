@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require_relative '../ruby/rc'
+require_relative 'rc'
 
 PARSE_AND_RENDER_TESTS = [
     <<~INPUT,
