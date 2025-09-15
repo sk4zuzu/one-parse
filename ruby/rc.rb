@@ -50,7 +50,8 @@ class RcParser < ParserBase
                   (take_exact %[\=]),
                   (one_of single_quoted,
                           double_quoted,
-                          unquoted),
+                          unquoted,
+                          blank),
                   (one_of comment,
                           blank_eol,
                           blank) ]

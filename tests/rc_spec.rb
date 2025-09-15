@@ -203,6 +203,16 @@ PUT_TESTS = [{
         # DSA
         S=3
     OUTPUT
+},{
+    input: <<~INPUT,
+        A=1
+    INPUT
+    path: 'S',
+    value: '',
+    put: <<~OUTPUT,
+        A=1
+        S=
+    OUTPUT
 }]
 
 RSpec.describe RcParser do

@@ -96,8 +96,8 @@ class ParserBase < ParserEngine
     def filtered(node = @parsed, patterns: [], indices: [])
         (recurse = proc { |node, patterns, indices| # NOTE: never use default values here!
             case
-            when node.is_a?(Pair)
-                node if patterns.empty?
+            when node.is_a?(Pair) && patterns.empty?
+                node
             when node.is_a?(Lookup)
                 case
                 when !(pat = patterns.shift).nil?
