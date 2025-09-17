@@ -38,14 +38,14 @@ class RcParser(ParserBase):
             return blank() + eol()
 
         def comment():
-            return self.Comment[
+            return self.Comment.from_str(
                 blank() + self.take_exact('#')
                         + self.take_while(lambda c: c != '\n')
                         + eol()
-            ]
+            )
 
         def pair():
-            return self.Pair[
+            return self.Pair.from_args(
                 self.one_of(lambda: blank() + self.take_exact('export') + blank(),
                             blank),
                 attribute(),
@@ -57,13 +57,13 @@ class RcParser(ParserBase):
                 self.one_of(comment,
                             blank_eol,
                             blank)
-            ]
+            )
 
-        return self.Sequence[
+        return self.Sequence.from_args(
             *(self.zero_or_more(lambda: self.one_of(pair,
                                                     comment,
                                                     blank_eol)))
-        ]
+        )
 
     def __init__(self, inp):
         super().__init__(inp)
@@ -86,9 +86,9 @@ class RcParser(ParserBase):
 
         # add a new pair directly at the root level
         if s.get(atrb) is None or (atrb_i is not None and atrb_i == 0):
-            self.parsed.append(self.Pair[
+            self.parsed.append(self.Pair.from_args(
                 '', atrb, '=', str(value), '\n'
-            ])
+            ))
 
         # require paths to be unequivocal
         elif atrb_i is None and len(s[atrb]) > 1:

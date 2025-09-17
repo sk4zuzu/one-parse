@@ -13,16 +13,20 @@ class ParserBase(ParserEngine):
         def getm(self, k): return self.__dict__[k]
 
     class Lookup(Meta, dict):
-        def __class_getitem__(cls, *d): return cls(*d)
+        @classmethod
+        def from_args(cls, *a): return cls(a)
 
     class Sequence(Meta, list):
-        def __class_getitem__(cls, *s): return cls(*s)
+        @classmethod
+        def from_args(cls, *a): return cls(a)
 
     class Pair(Sequence):
-        def __class_getitem__(cls, *p): return cls(*p)
+        @classmethod
+        def from_args(cls, *a): return cls(a)
 
     class Comment(Meta, str):
-        def __class_getitem__(cls, c): return cls(c) if ('#' in c) else str(c)
+        @classmethod
+        def from_str(cls, s): return cls(s) if ('#' in s) else str(s)
 
     def __init__(self, inp):
         super().__init__(inp)

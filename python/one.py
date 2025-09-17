@@ -36,14 +36,14 @@ class OneParser(ParserBase):
             return blank() + eol()
 
         def comment():
-            return self.Comment[
+            return self.Comment.from_str(
                 blank() + self.take_exact('#')
                         + self.take_while(lambda c: c != '\n')
                         + eol()
-            ]
+            )
 
         def pair():
-            return self.Pair[
+            return self.Pair.from_args(
                 blank(),
                 attribute(),
                 blank() + self.take_exact('=') + blank(),
@@ -52,51 +52,51 @@ class OneParser(ParserBase):
                 self.one_of(comment,
                             blank_eol,
                             blank)
-            ]
+            )
 
         def blank_comma():
             t = blank(); self.take_exact(',')
             return t
 
         def item():
-            return self.Pair[
+            return self.Pair.from_args(
                 blank(),
                 attribute(),
                 blank() + self.take_exact('=') + blank(),
                 self.one_of(quoted,
                             unquoted),
-                self.one_of(lambda: self.Comment[ blank_comma() + comment() ],
+                self.one_of(lambda: self.Comment.from_str(blank_comma() + comment()),
                             lambda: blank_comma() + blank_eol(),
                             blank_comma,
                             comment,
                             blank_eol,
                             blank)
-            ]
+            )
 
         def vector():
-            return self.Vector[
+            return self.Vector.from_args(
                 blank(),
                 attribute(),
                 blank() + self.take_exact('=') + blank(),
                 self.between(lambda: self.take_exact('['),
                              lambda: self.take_exact(']'),
-                             lambda: self.Sequence[
+                             lambda: self.Sequence.from_args(
                             *(self.zero_or_more(lambda: self.one_of(item,
                                                                     comment,
                                                                     blank_eol)))
-                        ]
+                        )
                 ),
                 self.one_of(comment,
                             blank_eol,
                             blank)
-            ]
+            )
 
-        return self.Sequence[
+        return self.Sequence.from_args(
             *(self.zero_or_more(lambda: self.one_of(pair,
                                                     vector,
                                                     comment,
                                                     blank_eol)))
-        ]
+        )
 
     def __init__(self, inp):
         super().__init__(inp)
@@ -138,19 +138,19 @@ class OneParser(ParserBase):
 
         # add a new pair directly at the root level
         if (s.get(atrb) is None or (atrb_i is not None and atrb_i == 0)) and item is None:
-            self.parsed.append(self.Pair[
+            self.parsed.append(self.Pair.from_args(
                 '', atrb, ' = ', str(value), '\n'
-            ])
+            ))
 
         # add a new vector with a single pair directly at the root level
         elif (s.get(atrb) is None or (atrb_i is not None and atrb_i == 0)) and item is not None:
-            self.parsed.append(self.Vector[
-                '', atrb, ' = ', self.Sequence[
-                    '\n', self.Pair[
+            self.parsed.append(self.Vector.from_args(
+                '', atrb, ' = ', self.Sequence.from_args(
+                    '\n', self.Pair.from_args(
                         ' ', item, ' = ', str(value), ' '
-                    ]
-                ], '\n'
-            ])
+                    )
+                ), '\n'
+            ))
 
         # require paths to be unequivocal
         elif atrb_i is None and len(s[atrb]) > 1:
@@ -176,9 +176,9 @@ class OneParser(ParserBase):
             # apply suffix correction to the former last pair
             indent['prev_pair'][4] = indent['prev_suffix']
             # append new correctly indented pair
-            parent.append(self.Pair[
+            parent.append(self.Pair.from_args(
                 indent['next_prefix'], item, ' = ', str(value), indent['next_suffix']
-            ])
+            ))
 
         # require paths to be unequivocal
         elif item_i is None and len(s[item]) > 1:
