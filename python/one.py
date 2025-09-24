@@ -220,6 +220,8 @@ class OneParser(ParserBase):
                         break
 
     def _ypath(self, path, wildcards=True):
+        if isinstance(path, list):
+            path = '/'.join(path)
         wild = '*' if wildcards else ''
         regx = rf'''(?x)
             ^

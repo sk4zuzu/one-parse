@@ -214,6 +214,7 @@ class OneParser < ParserBase
     private
 
     def ypath(path, wildcards: true)
+        path = path.join(%[\/]) if path.is_a?(Array)
         wild = wildcards ? %[\*] : %[]
         regx = %r{ ^
                    ( [[:alnum:]_#{wild}]+ )

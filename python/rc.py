@@ -123,6 +123,8 @@ class RcParser(ParserBase):
         recurse(self._filtered(patterns=[atrb, None], indices=[atrb_i, None]))
 
     def _ypath(self, path, wildcards=True):
+        if isinstance(path, list):
+            path = '/'.join(path)
         wild = '*' if wildcards else ''
         regx = rf'''(?x)
             ^
