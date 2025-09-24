@@ -131,7 +131,6 @@ class OneParser(ParserBase):
                 raise self.InvalidTree
         return acc
 
-    # due to overwhelming complexity we decided not to use recurrence here.. xD
     def put(self, path, value):
         atrb, atrb_i, item, item_i = self._ypath(path, wildcards=False)
         s = self._searchable()

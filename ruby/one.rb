@@ -120,7 +120,6 @@ class OneParser < ParserBase
         end
     end
 
-    # due to overwhelming complexity we decided not to use recurrence here.. xD
     def put(path, value)
         atrb, atrb_i, item, item_i = ypath path, wildcards: false
         s = searchable

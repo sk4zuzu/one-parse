@@ -79,7 +79,6 @@ class RcParser(ParserBase):
                 raise self.InvalidTree
         return acc
 
-    # due to overwhelming complexity we decided not to use recurrence here.. xD
     def put(self, path, value):
         atrb, atrb_i, _, _ = self._ypath(path, wildcards=False)
         s = self._searchable()
