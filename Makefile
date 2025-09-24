@@ -7,9 +7,9 @@ export
 
 all: test
 
-.PHONY: test test_one test_rc
+.PHONY: test test_one test_rc test_yaml
 
-test: test_one test_rc
+test: test_one test_rc test_yaml
 
 test_one:
 	rspec $(SELF)/ruby/one_spec.rb
@@ -18,3 +18,6 @@ test_one:
 test_rc:
 	rspec $(SELF)/ruby/rc_spec.rb
 	python $(SELF)/python/test_rc.py
+
+test_yaml:
+	python $(SELF)/python/test_yaml.py
