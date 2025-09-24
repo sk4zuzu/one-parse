@@ -1,5 +1,4 @@
 import io
-from ruamel.yaml import YAML
 from base import ParserBase
 
 class YamlParser(ParserBase):
@@ -8,6 +7,7 @@ class YamlParser(ParserBase):
 
     def __init__(self, inp):
         super().__init__(inp)
+        from ruamel.yaml import YAML
         self.yaml = YAML(typ='rt', pure=True)
         self.yaml.preserve_quotes = True
 
