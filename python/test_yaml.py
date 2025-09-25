@@ -172,6 +172,18 @@ PUT_TESTS = [{
         a: 1
         s:
     ''')
+},{
+    "input": dd('''
+        a: 1
+    '''),
+    "path": ['s'],
+    "value": {"d": {"f": 2}},
+    "put": dd('''
+        a: 1
+        s:
+          d:
+            f: 2
+    ''')
 }]
 
 DROP_TESTS = [{
