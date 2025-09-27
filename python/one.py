@@ -7,13 +7,13 @@ class OneParser(ParserBase):
 
     def parser_proc(self):
         def quoted():
+            escaped = [False]
             def pred(c):
-                if c == '\\' or (c == '"' and pred.__dict__['escaped']):
-                    pred.__dict__['escaped'] = not pred.__dict__['escaped']
+                if c == '\\' or (c == '"' and escaped[0]):
+                    escaped[0] = not escaped[0]
                     return True
                 else:
                     return c != '"'
-            pred.__dict__['escaped'] = False
             return self.between(lambda: self.take_exact('"'),
                                 lambda: self.take_exact('"'),
                                 lambda: '"' + self.take_while(pred) + '"')
@@ -120,7 +120,8 @@ class OneParser(ParserBase):
                         acc += v
                     elif isinstance(v, self.Pair):
                         acc += ''.join(v[0:4])
-                        if (count := count - 1) > 0:
+                        count = count - 1
+                        if count > 0:
                             acc += ','
                         acc += v[4]
                     else:
@@ -140,9 +141,10 @@ class OneParser(ParserBase):
             self.parsed.append(self.Pair.from_args(
                 '', atrb, ' = ', str(value), '\n'
             ))
+            return
 
         # add a new vector with a single pair directly at the root level
-        elif (s.get(atrb) is None or (atrb_i is not None and atrb_i == 0)) and item is not None:
+        if (s.get(atrb) is None or (atrb_i is not None and atrb_i == 0)) and item is not None:
             self.parsed.append(self.Vector.from_args(
                 '', atrb, ' = ', self.Sequence.from_args(
                     '\n', self.Pair.from_args(
@@ -150,26 +152,30 @@ class OneParser(ParserBase):
                     )
                 ), '\n'
             ))
+            return
 
         # require paths to be unequivocal
-        elif atrb_i is None and len(s[atrb]) > 1:
+        if atrb_i is None and len(s[atrb]) > 1:
             raise self.AmbiguousMatch
 
         # fail when nothing found
-        elif s.get(atrb) is None or (s := s[atrb][0 if atrb_i is None else (atrb_i - 1)]) is None:
+        try:
+            s = s[atrb][0 if atrb_i is None else (atrb_i - 1)]
+        except (KeyError, IndexError):
             raise self.EmptyMatch
 
         # when second pattern is provided then first one must not resolve into a pair
         # when second pattern is not provided then first one must resolve into a pair
-        elif (item is None) ^ isinstance(s, self.Pair):
+        if (item is None) ^ isinstance(s, self.Pair):
             raise self.InvalidPath
 
         # update the value (root level)
-        elif item is None:
+        if item is None:
             s[3] = str(value)
+            return
 
         # add a new pair to an existing vector
-        elif s.get(item) is None or (item_i is not None and item_i == 0):
+        if s.get(item) is None or (item_i is not None and item_i == 0):
             parent = s[list(s.keys())[0]][0].getm('_parent_') # get parent from a neighbor pair
             indent = self.__infer_vector_indent(parent)
             # apply suffix correction to the former last pair
@@ -178,28 +184,32 @@ class OneParser(ParserBase):
             parent.append(self.Pair.from_args(
                 indent['next_prefix'], item, ' = ', str(value), indent['next_suffix']
             ))
+            return
 
         # require paths to be unequivocal
-        elif item_i is None and len(s[item]) > 1:
+        if item_i is None and len(s[item]) > 1:
             raise self.AmbiguousMatch
 
         # fail when nothing found
-        elif s.get(item) is None or (s := s[item][0 if item_i is None else (item_i - 1)]) is None:
+        try:
+            s = s[item][0 if item_i is None else (item_i - 1)]
+        except (KeyError, IndexError):
             raise self.EmptyMatch
 
         # second pattern must resolve into a pair
-        elif not isinstance(s, self.Pair):
+        if not isinstance(s, self.Pair):
             raise self.InvalidPath
 
         # update the value (vector level)
-        else:
-            s[3] = str(value)
+        s[3] = str(value)
+        return
 
     def drop(self, path, value=None):
         atrb, atrb_i, item, item_i = self._ypath(path, wildcards=True)
         def recurse(node):
             if isinstance(node, self.Pair) and (value is None or node[3] == str(value)):
-                for i, x in enumerate(parent := node.getm('_parent_')):
+                parent = node.getm('_parent_')
+                for i, x in enumerate(parent):
                     if id(x) == id(node):
                         parent.pop(i)
                         break
@@ -237,7 +247,8 @@ class OneParser(ParserBase):
             )?
             $
         '''
-        if (m := re.match(regx, path)) is None:
+        m = re.match(regx, path)
+        if m is None:
             raise self.InvalidPath
 
         atrb   = m[1]
@@ -291,7 +302,8 @@ class OneParser(ParserBase):
                     acc['has_eol'] = True
                 acc['prev_pair'] = node
         acc['next_prefix'] = copy.copy(acc['prev_pair'][0])
-        if isinstance(s := acc['prev_pair'][4], self.Comment):
+        s = acc['prev_pair'][4]
+        if isinstance(s, self.Comment):
             acc['prev_suffix'] = copy.copy(s)
             acc['next_suffix'] = ' '
         else:

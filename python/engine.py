@@ -28,7 +28,8 @@ class ParserEngine:
         return self.__backtrack(block)
 
     def peek(self, length=1):
-        return s if len(s := self._input()[0:length]) == length else self.quit()
+        s = self._input()[0:length]
+        return s if len(s) == length else self.quit()
 
     def take(self, length=1):
         t = self.peek(length); self.__consume(length)
@@ -36,14 +37,16 @@ class ParserEngine:
 
     def take_exact(self, pattern):
         def block():
-            return s if (s := self.take(len(pattern))) == pattern else self.quit()
+            s = self.take(len(pattern))
+            return s if s == pattern else self.quit()
         return self.__backtrack(block)
 
     def take_while(self, pred):
         try:
             s = ''
             def block():
-                return c if pred(c := self.take()) else self.quit()
+                c = self.take()
+                return c if pred(c) else self.quit()
             while True:
                 s += self.__backtrack(block)
             return s

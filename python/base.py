@@ -9,8 +9,8 @@ class ParserBase(ParserEngine):
     class EmptyMatch(Exception): pass
 
     class Meta:
-        def setm(self, k, v): self.__dict__[k] = v; return self
-        def getm(self, k): return self.__dict__[k]
+        def setm(self, k, v): setattr(self, k, v); return self
+        def getm(self, k): return getattr(self, k)
 
     class Lookup(Meta, dict):
         @classmethod
@@ -46,18 +46,21 @@ class ParserBase(ParserEngine):
         atrb, atrb_i, item, item_i = self._ypath(path, wildcards=True)
         def recurse(node, pfx, acc):
             if isinstance(node, self.Pair) and (value is None or node[3] == str(value)):
-                idx = '' if (i := node.getm('_index_')) is None else f'[{i}]'
+                i = node.getm('_index_')
+                idx = '' if i is None else f'[{i}]'
                 acc.append(pfx + idx)
             elif isinstance(node, self.Sequence):
                 for v in node:
                     recurse(v, pfx, acc)
             elif isinstance(node, self.Lookup):
                 if len(pfx) > 0:
-                    idx = '' if (i := node.getm('_index_')) is None else f'[{i}]'
+                    i = node.getm('_index_')
+                    idx = '' if i is None else f'[{i}]'
                     pfx += idx + '/'
                 for k, v in node.items():
                     recurse(v, pfx + k, acc)
-        recurse(self._filtered(patterns=[atrb, item], indices=[atrb_i, item_i]), '', (found := []))
+        found = []
+        recurse(self._filtered(patterns=[atrb, item], indices=[atrb_i, item_i]), '', found)
         return found
 
     def get(self, path):
@@ -71,7 +74,8 @@ class ParserBase(ParserEngine):
             elif isinstance(node, self.Lookup):
                 for v in node.values():
                     recurse(v, acc)
-        recurse(self._filtered(patterns=[atrb, item], indices=[atrb_i, item_i]), (found := []))
+        found = []
+        recurse(self._filtered(patterns=[atrb, item], indices=[atrb_i, item_i]), found)
         return found
 
     def put(self, path, value):
@@ -115,10 +119,11 @@ class ParserBase(ParserEngine):
                         v = recurse(vv, copy.copy(patterns), copy.copy(indices))
                         if v is not None:
                             acc.append(v)
-                    if acc := [x for x in acc if x is not None]:
+                    acc = [x for x in acc if x is not None]
+                    if acc:
                         return self.Sequence(acc)
-                elif idx is not None and idx != 0 and len(node) > 1 and (vv := node[idx - 1]) is not None:
-                    v = recurse(vv, copy.copy(patterns), copy.copy(indices))
+                elif idx is not None and idx != 0 and len(node) > 1 and node[idx - 1] is not None:
+                    v = recurse(node[idx - 1], copy.copy(patterns), copy.copy(indices))
                     if v is not None:
                         return self.Sequence([v])
         return recurse(

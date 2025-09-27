@@ -16,7 +16,8 @@ class YamlParser(ParserBase):
         return self.parsed
 
     def render(self, node=None):
-        self.yaml.dump(self.parsed, b := io.BytesIO())
+        b = io.BytesIO()
+        self.yaml.dump(self.parsed, b)
         return b.getvalue().decode('utf-8')
 
     def match(self, path, value=None):
@@ -79,10 +80,12 @@ class YamlParser(ParserBase):
                         raise self.EmptyMatch
                 elif p == 0:
                     if isinstance(n, str):
-                        v.append(t := dict())
+                        t = dict()
+                        v.append(t)
                         v = t
                     elif isinstance(n, int):
-                        v.append(t := list())
+                        t = list()
+                        v.append(t)
                         v = t
                     else:
                         raise self.InvalidPath

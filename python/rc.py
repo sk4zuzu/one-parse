@@ -9,13 +9,13 @@ class RcParser(ParserBase):
                                 lambda: "'" + self.take_while(lambda c: c != "'") + "'")
 
         def double_quoted():
+            escaped = [False]
             def pred(c):
-                if c == '\\' or (c == '"' and pred.__dict__['escaped']):
-                    pred.__dict__['escaped'] = not pred.__dict__['escaped']
+                if c == '\\' or (c == '"' and escaped[0]):
+                    escaped[0] = not escaped[0]
                     return True
                 else:
                     return c != '"'
-            pred.__dict__['escaped'] = False
             return self.between(lambda: self.take_exact('"'),
                                 lambda: self.take_exact('"'),
                                 lambda: '"' + self.take_while(pred) + '"')
@@ -88,22 +88,25 @@ class RcParser(ParserBase):
             self.parsed.append(self.Pair.from_args(
                 '', atrb, '=', str(value), '\n'
             ))
+            return
 
         # require paths to be unequivocal
-        elif atrb_i is None and len(s[atrb]) > 1:
+        if atrb_i is None and len(s[atrb]) > 1:
             raise self.AmbiguousMatch
 
         # fail when nothing found
-        elif s.get(atrb) is None or (s := s[atrb][0 if atrb_i is None else (atrb_i - 1)]) is None:
+        try:
+            s = s[atrb][0 if atrb_i is None else (atrb_i - 1)]
+        except (KeyError, IndexError):
             raise self.EmptyMatch
 
         # the pattern must resolve into a pair
-        elif not isinstance(s, self.Pair):
+        if not isinstance(s, self.Pair):
             raise self.InvalidPath
 
         # update the value (root level)
-        else:
-            s[3] = str(value)
+        s[3] = str(value)
+        return
 
     def drop(self, path, value=None):
         atrb, atrb_i, _, _ = self._ypath(path, wildcards=True)
@@ -133,7 +136,8 @@ class RcParser(ParserBase):
             )?
             $
         '''
-        if (m := re.match(regx, path)) is None:
+        m = re.match(regx, path)
+        if m is None:
             raise self.InvalidPath
 
         atrb   = m[1]
